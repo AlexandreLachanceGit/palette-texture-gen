@@ -1,22 +1,31 @@
 use clap::{error::Result, Parser};
-use image::Rgb;
+use image::{Rgb, RgbImage};
 
-/// Simple program to create a color swatch texture from a list of colors
+/// Simple CLI tool to create a color swatch texture from a list of hex colors
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     /// Hex Colors (comma separated)
     #[arg(required = true, value_parser = parse_colors, num_args = 1.., value_delimiter = ' ')]
     colors: Box<[Rgb<u8>]>,
+
+    /// Size of swatch in pixels
+    #[arg(short, long, default_value_t = 5)]
+    size: u32,
+
+    /// Output path
+    #[arg(short, long, default_value = "swatch-texture.png")]
+    out: String,
 }
 
 fn parse_colors(s: &str) -> Result<Box<[Rgb<u8>]>, String> {
     let mut colors = vec![];
     for c in s.split(',') {
+        let c = c.trim();
         let hex = if c.starts_with('#') {
-            c.trim().strip_prefix('#').unwrap()
+            c.strip_prefix('#').unwrap()
         } else {
-            c.trim()
+            c
         };
 
         if hex.len() != 6 {
@@ -28,7 +37,6 @@ fn parse_colors(s: &str) -> Result<Box<[Rgb<u8>]>, String> {
             .map(|i| u8::from_str_radix(&hex[i..i + 2], 16))
             .collect::<Result<Vec<_>, _>>()
         {
-            println!("{rgb:?}");
             colors.push(Rgb([rgb[0], rgb[1], rgb[2]]));
         } else {
             return Err(format!(
@@ -40,10 +48,28 @@ fn parse_colors(s: &str) -> Result<Box<[Rgb<u8>]>, String> {
     Ok(Box::from(colors))
 }
 
+fn generate_texture(colors: &[Rgb<u8>], size: u32) -> RgbImage {
+    let len = (colors.len() as f32).sqrt() as u32 + 1;
+    let mut image = RgbImage::new(len * size, len * size);
+
+    for (i, c) in colors.iter().enumerate() {
+        let start_pos = (i as u32 % len * size, (i as u32 / len) * size);
+        for x in start_pos.0..start_pos.0 + size {
+            for y in start_pos.1..start_pos.1 + size {
+                image.put_pixel(x, y, *c);
+            }
+        }
+    }
+
+    image
+}
+
 fn main() {
     let args = Args::parse();
 
-    println!("{:?}", args.colors)
+    generate_texture(&args.colors, args.size)
+        .save(args.out)
+        .unwrap();
 }
 
 #[cfg(test)]
