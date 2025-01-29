@@ -53,7 +53,7 @@ fn parse_colors(s: &str) -> Result<Box<[Rgb<u8>]>, String> {
 }
 
 fn generate_texture(colors: &[Rgb<u8>], size: u32) -> RgbImage {
-    let len = (colors.len() as f32).sqrt() as u32 + 1;
+    let len = (colors.len() as f32).sqrt().ceil() as u32;
     let mut image = RgbImage::new(len * size, len * size);
 
     for (i, c) in colors.iter().enumerate() {
