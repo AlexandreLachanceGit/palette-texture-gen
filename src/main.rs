@@ -1,7 +1,7 @@
 use clap::{error::Result, Parser};
 use image::{Rgb, RgbImage};
 
-/// Simple CLI tool to create a color swatch texture from a list of hex colors
+/// Simple CLI tool to create a color palette texture from a list of hex colors
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -9,12 +9,12 @@ struct Args {
     #[arg(required = true, value_parser = parse_colors, num_args = 1.., value_delimiter = ' ')]
     colors: Box<[Rgb<u8>]>,
 
-    /// Size of swatch in pixels
+    /// Size of palette in pixels
     #[arg(short, long, default_value_t = 5)]
     size: u32,
 
     /// Output path
-    #[arg(short, long, default_value = "swatch-texture.png")]
+    #[arg(short, long, default_value = "palette-texture.png")]
     out: String,
 }
 
