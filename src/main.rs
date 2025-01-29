@@ -9,7 +9,7 @@ struct Args {
     #[arg(required = true, value_parser = parse_colors, num_args = 1.., value_delimiter = ' ')]
     colors: Box<[Rgb<u8>]>,
 
-    /// Size of palette in pixels
+    /// Size of color tile in pixels
     #[arg(short, long, default_value_t = 5)]
     size: u32,
 
