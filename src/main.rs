@@ -28,6 +28,10 @@ fn parse_colors(s: &str) -> Result<Box<[Rgb<u8>]>, String> {
             c
         };
 
+        if hex.is_empty() {
+            continue;
+        }
+
         if hex.len() != 6 {
             return Err("Invalid color format, expected `#RRGGBB` or `RRGGBB`.".to_string());
         }
